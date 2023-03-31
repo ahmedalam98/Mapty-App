@@ -26,11 +26,11 @@
       crossorigin=""
     ></script>
     <script defer src="script.js"></script>
-    <title>mapty // Map your workouts</title>
+    <title>Mapty - Map your workouts</title>
   </head>
   <body>
     <div class="sidebar">
-      <img src="logo.png" alt="Logo" class="logo" />
+      <img src="./img/logo.png" alt="Logo" class="logo" />
 
       <ul class="workouts">
         <form class="form hidden">
@@ -68,6 +68,20 @@
           </div>
           <button class="form__btn">OK</button>
         </form>
+
+        <!-- INSTRUCTIONS -->
+        <li class="instructions">
+          <h2 class="instructions__title">INSTRUCTIONS</h2>
+          <ol class="instructions__steps">
+            <li class="step">Select workout location on the map</li>
+            <li class="step">Insert workout details (running / cycling)</li>
+            <li class="step">Click on workout to view it on the map</li>
+            <li class="step">Workouts are saved using Local Storage API</li>
+            <li class="step">
+              Click on <strong>Reset</strong> button to remove all workouts
+            </li>
+          </ol>
+        </li>
 
         <!-- <li class="workout workout--running" data-id="1234567890">
           <h2 class="workout__title">Running on April 14</h2>
@@ -117,8 +131,19 @@
           </div>
         </li> -->
       </ul>
+
+      <p class="copyright">
+        &copy; Created by
+        <a
+          class="website-link"
+          target="_blank"
+          href="https://github.com/ahmedalam98"
+          >Ahmed Alam El-Deen</a
+        >.
+      </p>
     </div>
 
     <div id="map"></div>
+    <button class="btn">Reset</button>
   </body>
 </html>

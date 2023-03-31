@@ -1,5 +1,20 @@
 "use strict";
 
+////////////////////////////////
+// Selecting Elements
+////////////////////////////////
+const form = document.querySelector(".form");
+const containerWorkouts = document.querySelector(".workouts");
+const inputType = document.querySelector(".form__input--type");
+const inputDistance = document.querySelector(".form__input--distance");
+const inputDuration = document.querySelector(".form__input--duration");
+const inputCadence = document.querySelector(".form__input--cadence");
+const inputElevation = document.querySelector(".form__input--elevation");
+const resetButton = document.querySelector(".btn");
+
+////////////////////////////////
+// Workout Classes
+////////////////////////////////
 class Workout {
   date = new Date();
   id = (Date.now() + "").slice(-10);
@@ -54,15 +69,9 @@ class Cycling extends Workout {
   }
 }
 
-///////////////////////////////////////
+////////////////////////////////
 // APPLICATION ARCHITECTURE
-const form = document.querySelector(".form");
-const containerWorkouts = document.querySelector(".workouts");
-const inputType = document.querySelector(".form__input--type");
-const inputDistance = document.querySelector(".form__input--distance");
-const inputDuration = document.querySelector(".form__input--duration");
-const inputCadence = document.querySelector(".form__input--cadence");
-const inputElevation = document.querySelector(".form__input--elevation");
+////////////////////////////////
 
 class App {
   #map;
@@ -79,6 +88,9 @@ class App {
 
     // Attach event handlers
     form.addEventListener("submit", this._newWorkout.bind(this));
+    // reset button
+    resetButton.addEventListener("click", this.reset);
+    // choosing TYPE(running/cycling)
     inputType.addEventListener("change", this._toggleElevationField);
     containerWorkouts.addEventListener("click", this._moveToPopup.bind(this));
   }
@@ -87,6 +99,7 @@ class App {
     if (navigator.geolocation)
       navigator.geolocation.getCurrentPosition(
         this._loadMap.bind(this),
+        // here we use (bind) so as (_loadMap) is calle by (getCurrentPosition) function and not the current class so we change (this) keyWord by using (bind)
         function () {
           alert("Could not get your position");
         }
@@ -100,11 +113,13 @@ class App {
 
     this.#map = L.map("map").setView(coords, this.#mapZoomLevel);
 
+    // change style of the map
     L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.#map);
 
+    // we can't use eventListener on the map as we want to know where is the click. So we use methods from leaflet:
     // Handling clicks on map
     this.#map.on("click", this._showForm.bind(this));
 
@@ -115,37 +130,46 @@ class App {
   }
 
   _showForm(mapE) {
+    // we used different name then assigned it to the global property (#mapEvent) so that we can use it outside the scope of this function
     this.#mapEvent = mapE;
+
+    // display the form when clicking on the map
     form.classList.remove("hidden");
+    // focus>> to start writing immediately
+
+    // focus on the distance input box immediately after form appears
     inputDistance.focus();
   }
 
   _hideForm() {
-    // Empty inputs
+    // Empty inputs after submiting
     inputDistance.value =
       inputDuration.value =
       inputCadence.value =
       inputElevation.value =
         "";
-    // Hide Form
+
+    // to prevent workouts from sliding up when form disappear
     form.style.display = "none";
     form.classList.add("hidden");
     setTimeout(() => (form.style.display = "grid"), 1000);
   }
 
+  // change which input row appears when selecting (cycling / running)
   _toggleElevationField() {
     inputElevation.closest(".form__row").classList.toggle("form__row--hidden");
     inputCadence.closest(".form__row").classList.toggle("form__row--hidden");
   }
 
   _newWorkout(e) {
+    // helper functions
     const validInputs = (...inputs) =>
       inputs.every((inp) => Number.isFinite(inp));
     const allPositive = (...inputs) => inputs.every((inp) => inp > 0);
 
     e.preventDefault();
 
-    // Get data from form
+    // Get data from form  & (convert strings to numbers)
     const type = inputType.value;
     const distance = +inputDistance.value;
     const duration = +inputDuration.value;
@@ -268,6 +292,7 @@ class App {
     // BUGFIX: Error While clicking on a workout before the map has loaded
     if (!this.#map) return;
 
+    // event delegation
     const workoutEl = e.target.closest(".workout");
 
     if (!workoutEl) return;
@@ -276,8 +301,9 @@ class App {
       (work) => work.id === workoutEl.dataset.id
     );
 
-    // Leaflet API Method
+    // leaflet built-in method to move the view to a coordinate
     this.#map.setView(workout.coords, this.#mapZoomLevel, {
+      // options from documentation
       animate: true,
       pan: {
         duration: 1,
